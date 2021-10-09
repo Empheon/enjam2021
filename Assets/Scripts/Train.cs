@@ -87,7 +87,7 @@ namespace DefaultNamespace
 
             if (track.IsDestination)
             {
-                //Win
+                RoundManager.Instance.DestinationReached();
             }
         }
     }

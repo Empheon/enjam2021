@@ -7,6 +7,9 @@ namespace DefaultNamespace
     public class RoundManager : MonoBehaviour
     {
         public static RoundManager Instance;
+
+        [HideInInspector] public Action OnGameReload;
+        [HideInInspector] public Action OnTrainDeparted;
         
         public List<MapGenerator> Levels;
 
@@ -17,6 +20,7 @@ namespace DefaultNamespace
         
         private int m_currentLevel = 0;
         private MapGenerator m_currentMap;
+        private bool m_endScreenOpened;
 
         public MapGenerator CurrentMap => m_currentMap;
 
@@ -44,15 +48,30 @@ namespace DefaultNamespace
             m_currentMap = Instantiate(Levels[m_currentLevel % Levels.Count]);
             EndScreen.HideAll();
             Pigeon.DeathCount = 0;
+            m_endScreenOpened = false;
+            
+            OnGameReload?.Invoke();
         }
 
         public void Win()
         {
+            if (m_endScreenOpened)
+            {
+                return;
+            }
+            
+            m_endScreenOpened = true;
             EndScreen.DisplayWinPanel();
         }
 
         public void Lose()
         {
+            if (m_endScreenOpened)
+            {
+                return;
+            }
+            
+            m_endScreenOpened = true;
             EndScreen.DisplayLosePanel();
         }
 
@@ -72,6 +91,7 @@ namespace DefaultNamespace
         {
             m_currentMap.TrainInstance.StartMoving();
             IsTrainDeparted = true;
+            OnTrainDeparted?.Invoke();
         }
     }
 }

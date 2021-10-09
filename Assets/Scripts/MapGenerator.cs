@@ -17,8 +17,10 @@ public class MapGenerator : MonoBehaviour
     public Pigeon PigeonPrefab;
 
     public int DeathCountNeeded;
+    public float CountdownDuration;
+
+    [HideInInspector] public float CountdownTimer;
     
-    [HideInInspector]
     public int MaxKillablePigeons;
     
     private char lineSeperater = '\n';
@@ -26,6 +28,7 @@ public class MapGenerator : MonoBehaviour
 
     private float trackUnits = 2f;
 
+    [HideInInspector]
     public Train TrainInstance;
     private int trainX, trainY;
     private int destX, destY;
@@ -33,11 +36,13 @@ public class MapGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        CountdownTimer = CountdownDuration;
+        
         var csvMapData = ReadData(CsvFileMap, true);
         var csvPigeonData = ReadData(CsvFilePigeons);
 
-        float hOffset = csvMapData[0].Count * trackUnits / 2f - trackUnits / 2;
-        float vOffset = csvMapData.Count * trackUnits / 2f - trackUnits / 2;
+        float hOffset = csvMapData[0].Count * trackUnits / 2f - trackUnits / 2f;
+        float vOffset = csvMapData.Count * trackUnits / 2f - trackUnits / 2f;
 
         for (int i = 0; i < csvMapData.Count; i++)
         {
@@ -101,7 +106,7 @@ public class MapGenerator : MonoBehaviour
                 if (csvPigeonData[i][j] != "" && csvPigeonData[i][j] != "\r")
                 {
                     int nb = Int32.Parse(csvPigeonData[i][j]);
-                    float extent = nb * 0.1f;
+                    float extent = nb * 0.2f;
                     
                     for (int k = 0; k < nb; k++)
                     {
@@ -114,8 +119,6 @@ public class MapGenerator : MonoBehaviour
                         Vector3 pos = new Vector3(0, 0, z);
                         Pigeon pigeon = Instantiate(PigeonPrefab, Vector3.zero, Quaternion.identity, go.transform);
                         pigeon.transform.localPosition = pos;
-                        MaxKillablePigeons++;
-
                     }
                 }
             }
@@ -125,7 +128,14 @@ public class MapGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!RoundManager.Instance.IsTrainDeparted)
+        {
+            CountdownTimer -= Time.deltaTime;
+            if (CountdownTimer < 0f)
+            {
+                RoundManager.Instance.StartGame();
+            }
+        }
     }
     
     private List<List<string>> ReadData(TextAsset file, bool isMap = false)
