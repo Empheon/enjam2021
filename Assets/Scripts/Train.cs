@@ -15,15 +15,17 @@ namespace DefaultNamespace
         private float distanceTravelled;
 
         private bool m_isMoving;
+        private AudioSource audioSource;
 
         private void Start()
         {
-            
+            audioSource = GetComponent<AudioSource>();
         }
 
         public void StartMoving()
         {
             m_isMoving = true;
+            audioSource.Play();
         }
 
         private void Update()

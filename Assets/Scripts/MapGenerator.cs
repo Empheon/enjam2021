@@ -106,7 +106,7 @@ public class MapGenerator : MonoBehaviour
                 if (csvPigeonData[i][j] != "" && csvPigeonData[i][j] != "\r")
                 {
                     int nb = Int32.Parse(csvPigeonData[i][j]);
-                    float extent = nb * 0.2f;
+                    float extent = nb * 0.25f;
                     
                     for (int k = 0; k < nb; k++)
                     {
