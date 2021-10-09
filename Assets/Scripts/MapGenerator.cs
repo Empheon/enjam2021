@@ -14,11 +14,21 @@ public class MapGenerator : MonoBehaviour
     public GameObject NonMovableCurvedTrackPrefab;
     public Train TrainPrefab;
     
-    private char lineSeperater = '\n';
-    private char fieldSeperator = ';';
+    public Pigeon PigeonPrefab;
 
-    private Train train;
+    public int DeathCountNeeded;
+    
+    [HideInInspector]
+    public int MaxKillablePigeons;
+    
+    private char lineSeperater = '\n';
+    private char fieldSeperator = ',';
+
+    private float trackUnits = 2f;
+
+    public Train TrainInstance;
     private int trainX, trainY;
+    private int destX, destY;
     
     // Start is called before the first frame update
     void Start()
@@ -26,8 +36,8 @@ public class MapGenerator : MonoBehaviour
         var csvMapData = ReadData(CsvFileMap, true);
         var csvPigeonData = ReadData(CsvFilePigeons);
 
-        float hOffset = csvMapData[0].Count / 2f - 0.5f;
-        float vOffset = csvMapData.Count / 2f - 0.5f;
+        float hOffset = csvMapData[0].Count * trackUnits / 2f - trackUnits / 2;
+        float vOffset = csvMapData.Count * trackUnits / 2f - trackUnits / 2;
 
         for (int i = 0; i < csvMapData.Count; i++)
         {
@@ -42,11 +52,11 @@ public class MapGenerator : MonoBehaviour
                         continue;
                     case "h":
                         go = Instantiate(StraightTrackPrefab);
-                        go.transform.position = new Vector3(i * 1 - vOffset, 0, j * 1 - hOffset);
+                        go.transform.position = new Vector3(i * trackUnits - vOffset, 0, j * trackUnits - hOffset);
                         break;
                     case "v":
                         go = Instantiate(StraightTrackPrefab);
-                        go.transform.position = new Vector3(i * 1 - vOffset, 0, j * 1 - hOffset);
+                        go.transform.position = new Vector3(i * trackUnits - vOffset, 0, j * trackUnits - hOffset);
                         
                         go.transform.Rotate(0, 90,0);
                         break;
@@ -55,7 +65,7 @@ public class MapGenerator : MonoBehaviour
                     case "3":
                     case "4":
                         go = Instantiate(CurvedTrackPrefab);
-                        go.transform.position = new Vector3(i * 1 - vOffset, 0, j * 1 - hOffset);
+                        go.transform.position = new Vector3(i * trackUnits - vOffset, 0, j * trackUnits - hOffset);
                         
                         go.transform.Rotate(0, (Int32.Parse(data) - 1) * 90,0);
                         break;
@@ -64,17 +74,49 @@ public class MapGenerator : MonoBehaviour
                     case "8":
                     case "9":
                         go = Instantiate(NonMovableCurvedTrackPrefab);
-                        go.transform.position = new Vector3(i * 1 - vOffset, 0, j * 1 - hOffset);
+                        go.transform.position = new Vector3(i * trackUnits - vOffset, 0, j * trackUnits - hOffset);
                         
                         go.transform.Rotate(0, (Int32.Parse(data) - 1 - 5) * 90,0);
                         break;
                         
                 }
 
+                if (go != null)
+                {
+                    go.transform.parent = transform;
+                }
+
                 if (i == trainX && j == trainY)
                 {
-                    train.transform.position = go.transform.position + new Vector3(0, 0, -1);
-                    train.AttachToNewTrack(go.GetComponent<Track>());
+                    TrainInstance.transform.position = go.transform.position + new Vector3(5, 0, 0);
+                    TrainInstance.AttachToNewTrack(go.GetComponent<Track>());
+                    TrainInstance.transform.parent = transform;
+                }
+
+                if (i == destX && j == destY)
+                {
+                    go.GetComponent<Track>().IsDestination = true;
+                }
+
+                if (csvPigeonData[i][j] != "" && csvPigeonData[i][j] != "\r")
+                {
+                    int nb = Int32.Parse(csvPigeonData[i][j]);
+                    float extent = nb * 0.1f;
+                    
+                    for (int k = 0; k < nb; k++)
+                    {
+                        float z = 0;
+                        if (nb > 1)
+                        {
+                            z = Mathf.Lerp(-extent, extent, (float) k / (nb - 1));
+                        }
+                        
+                        Vector3 pos = new Vector3(0, 0, z);
+                        Pigeon pigeon = Instantiate(PigeonPrefab, Vector3.zero, Quaternion.identity, go.transform);
+                        pigeon.transform.localPosition = pos;
+                        MaxKillablePigeons++;
+
+                    }
                 }
             }
         }
@@ -101,11 +143,18 @@ public class MapGenerator : MonoBehaviour
                 if (field.Length > 1)
                 {
                     strMap[i].Add(field.Substring(0, 1));
-                    if (isMap && field.Substring(1, 1).Equals("t"))
+                    if (isMap)
                     {
-                        train = Instantiate(TrainPrefab);
-                        trainX = i;
-                        trainY = strMap[i].Count - 1;
+                        if (field.Substring(1, 1).Equals("t"))
+                        {
+                            TrainInstance = Instantiate(TrainPrefab);
+                            trainX = i;
+                            trainY = strMap[i].Count - 1;
+                        } else if (field.Substring(1, 1).Equals("d"))
+                        {
+                            destX = i;
+                            destY = strMap[i].Count - 1;
+                        }
                     }
                 }
                 else
@@ -119,7 +168,7 @@ public class MapGenerator : MonoBehaviour
             i++;
         }
         
-        strMap.RemoveAt(strMap.Count - 1);
+        // strMap.RemoveAt(strMap.Count - 1);
 
         return strMap;
     }

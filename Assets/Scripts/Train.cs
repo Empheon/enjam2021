@@ -8,14 +8,31 @@ namespace DefaultNamespace
     public class Train : MonoBehaviour
     {
         public float Speed = 5f;
-        
+
         private PathCreator m_currentPath;
 
         private float pathDirFactor = 1;
         private float distanceTravelled;
 
+        private bool m_isMoving;
+
+        private void Start()
+        {
+            
+        }
+
+        public void StartMoving()
+        {
+            m_isMoving = true;
+        }
+
         private void Update()
         {
+            if (!m_isMoving)
+            {
+                return;
+            }
+
             distanceTravelled += Time.deltaTime * Speed * pathDirFactor;
             transform.position = m_currentPath.path.GetPointAtDistance(distanceTravelled, EndOfPathInstruction.Stop);
             transform.rotation = m_currentPath.path.GetRotationAtDistance(distanceTravelled, EndOfPathInstruction.Stop);
@@ -27,9 +44,10 @@ namespace DefaultNamespace
             if (pathDirFactor < 0 && distanceTravelled < 0.01f ||
                 pathDirFactor > 0 && distanceTravelled > m_currentPath.path.length - 0.01f)
             {
-                var hits = Physics.SphereCastAll(transform.position, 0.1f, 
+                var hits = Physics.SphereCastAll(transform.position, 0.1f,
                     transform.forward, 0.01f);
-                
+
+                bool trackFound = false;
                 foreach (var hit in hits)
                 {
                     if (hit.collider.gameObject.TryGetComponent(out Track hitTrack))
@@ -37,23 +55,24 @@ namespace DefaultNamespace
                         if (hitTrack.Path != m_currentPath)
                         {
                             AttachToNewTrack(hitTrack);
+                            trackFound = true;
                             break;
                         }
                     }
                 }
-            }
-        }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, 0.4f);
+                if (!trackFound)
+                {
+                    m_isMoving = false;
+                    RoundManager.Instance.Lose();
+                }
+            }
         }
 
         public void AttachToNewTrack(Track track)
         {
             m_currentPath = track.Path;
-            
+
             transform.position = m_currentPath.path.GetClosestPointOnPath(transform.position);
             distanceTravelled = m_currentPath.path.GetClosestDistanceAlongPath(transform.position);
 
@@ -65,7 +84,11 @@ namespace DefaultNamespace
             {
                 pathDirFactor = 1;
             }
-            Debug.Log(pathDirFactor + " " + distanceTravelled);
+
+            if (track.IsDestination)
+            {
+                //Win
+            }
         }
     }
 }

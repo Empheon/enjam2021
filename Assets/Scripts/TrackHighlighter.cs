@@ -14,6 +14,11 @@ namespace DefaultNamespace
 
         private void OnMouseEnter()
         {
+            if (RoundManager.Instance.IsTrainDeparted)
+            {
+                return;
+            }
+            
             m_mouseOver = true;
             GetComponentInChildren<Renderer>().material.color = m_baseColor * 1.5f;
         }
@@ -26,6 +31,11 @@ namespace DefaultNamespace
         
         void Update()
         {
+            if (RoundManager.Instance.IsTrainDeparted)
+            {
+                return;
+            }
+            
             if (m_mouseOver && Input.GetMouseButtonDown(0))
             {
                 transform.parent.Rotate(Vector3.up, 90);

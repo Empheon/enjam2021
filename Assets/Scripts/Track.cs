@@ -7,8 +7,6 @@ namespace DefaultNamespace
     public class Track : MonoBehaviour
     {
         public PathCreator Path;
-        public bool IsTurnable;
-
-        
+        [HideInInspector] public bool IsDestination;
     }
 }
