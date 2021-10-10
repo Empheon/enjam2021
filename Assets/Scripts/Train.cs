@@ -63,9 +63,10 @@ namespace DefaultNamespace
                     }
                 }
 
-                if (!trackFound)
+                if (!trackFound && !RoundManager.Instance.IsEndScreenOpened)
                 {
                     m_isMoving = false;
+                    EndScreen.Instance.SetReason("You crashed!");
                     RoundManager.Instance.Lose();
                 }
             }

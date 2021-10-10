@@ -28,6 +28,8 @@ public class MapGenerator : MonoBehaviour
 
     private float trackUnits = 2f;
 
+    [HideInInspector] public bool IsCountingDown;
+
     [HideInInspector]
     public Train TrainInstance;
     private int trainX, trainY;
@@ -117,7 +119,8 @@ public class MapGenerator : MonoBehaviour
                         }
                         
                         Vector3 pos = new Vector3(0, 0, z);
-                        Pigeon pigeon = Instantiate(PigeonPrefab, Vector3.zero, Quaternion.identity, go.transform);
+                        Quaternion rot = Quaternion.Euler(0, 90, 0);
+                        Pigeon pigeon = Instantiate(PigeonPrefab, Vector3.zero, rot, go.transform);
                         pigeon.transform.localPosition = pos;
                     }
                 }
@@ -128,7 +131,7 @@ public class MapGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!RoundManager.Instance.IsTrainDeparted)
+        if (!RoundManager.Instance.IsTrainDeparted && IsCountingDown)
         {
             CountdownTimer -= Time.deltaTime;
             if (CountdownTimer < 0f)

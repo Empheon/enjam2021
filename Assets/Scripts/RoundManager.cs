@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace DefaultNamespace
 {
@@ -15,6 +19,10 @@ namespace DefaultNamespace
 
         public EndScreen EndScreen;
 
+        public StartCountdown StartCountdown;
+
+        public Button StartButton;
+
         [HideInInspector]
         public bool IsTrainDeparted;
         
@@ -22,6 +30,7 @@ namespace DefaultNamespace
         private MapGenerator m_currentMap;
         private bool m_endScreenOpened;
 
+        public bool IsEndScreenOpened => m_endScreenOpened;
         public MapGenerator CurrentMap => m_currentMap;
 
         private void Awake()
@@ -32,7 +41,7 @@ namespace DefaultNamespace
 
         private void Start()
         {
-            m_currentMap = Instantiate(Levels[0]);
+            ReloadLevel();
         }
 
         public void LoadNextLevel()
@@ -43,7 +52,13 @@ namespace DefaultNamespace
 
         public void ReloadLevel()
         {
-            Destroy(m_currentMap.gameObject);
+            if (m_currentMap)
+            {
+                Destroy(m_currentMap.gameObject);
+            }
+
+            StartButton.interactable = false;
+            
             IsTrainDeparted = false;
             m_currentMap = Instantiate(Levels[m_currentLevel % Levels.Count]);
             EndScreen.HideAll();
@@ -51,6 +66,12 @@ namespace DefaultNamespace
             m_endScreenOpened = false;
             
             OnGameReload?.Invoke();
+            StartCountdown.StartSequence();
+        }
+        
+        public void GoToMainMenu()
+        {
+            SceneManager.LoadScene("Scenes/MenuScene");
         }
 
         public void Win()
@@ -83,15 +104,16 @@ namespace DefaultNamespace
             }
             else
             {
+                EndScreen.Instance.SetReason("Not enough pigeons sacrificed :(");
                 Lose();
             }
         }
 
         public void StartGame()
         {
+            OnTrainDeparted?.Invoke();
             m_currentMap.TrainInstance.StartMoving();
             IsTrainDeparted = true;
-            OnTrainDeparted?.Invoke();
         }
     }
 }

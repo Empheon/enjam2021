@@ -77,6 +77,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: NonMovableCurvedTrack
       objectReference: {fileID: 0}
+    - target: {fileID: 5321937508705442264, guid: f21c2209c3a68b048a11709238b21131,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7010854250415017248, guid: f21c2209c3a68b048a11709238b21131,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7715180296980732480, guid: f21c2209c3a68b048a11709238b21131,
         type: 3}
       propertyPath: IsTurnable
