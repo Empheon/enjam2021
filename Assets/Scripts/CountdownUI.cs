@@ -16,6 +16,8 @@ namespace DefaultNamespace
         private AudioSource audioSource;
         private bool audioStarted;
 
+        private float safetyTimer = 1;
+
         private void Start()
         {
             audioSource = GetComponent<AudioSource>();
@@ -34,11 +36,12 @@ namespace DefaultNamespace
 
         private void Update()
         {
+            safetyTimer -= Time.deltaTime;
             TimerText.text = Mathf.Ceil(RoundManager.Instance.CurrentMap.CountdownTimer) + "s";
             Circle.fillAmount = 1 - (RoundManager.Instance.CurrentMap.CountdownTimer /
                                      RoundManager.Instance.CurrentMap.CountdownDuration);
 
-            if (RoundManager.Instance.CurrentMap.CountdownTimer <= 5f && !audioStarted)
+            if (RoundManager.Instance.CurrentMap.CountdownTimer <= 5f && !audioStarted && safetyTimer < 0)
             {
                 audioStarted = true;
                 audioSource.Play();

@@ -56,7 +56,8 @@ MonoBehaviour:
   PigeonPrefab: {fileID: 1595413842489734964, guid: 1f0632cffeade394cb3a8acd8a08ea0f,
     type: 3}
   DeathCountNeeded: 18
-  CountdownDuration: 30
+  CountdownDuration: 60
   CountdownTimer: 0
   MaxKillablePigeons: 22
+  IsCountingDown: 0
   TrainInstance: {fileID: 0}
